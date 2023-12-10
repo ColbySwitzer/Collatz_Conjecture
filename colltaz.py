@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import threading
 
 currentNum = 3
 running = False
@@ -10,8 +11,6 @@ numbers = []
 
 def collatzConjecture(a):
     permutations = 0
-    global sequence
-    global numbers
     numbers.append(a)
     while a != 1:
         if(a%2 == 0):
@@ -22,14 +21,21 @@ def collatzConjecture(a):
             permutations += 1
     sequence.append(permutations)
 
+def updatePlotPeriodically():
+    global currentNum
+    while running:
+        collatzConjecture(currentNum)
+        currentNum += 1
+        updatePlot(numbers,sequence)
+        window.after(1)
+
 def onRunButtonClick():
     global running
-
     running = not running
 
-    if running:
-        runCollatzConjecture()
-
+    if running: 
+        threading.Thread(target=updatePlotPeriodically, daemon=True).start()
+        
 def updatePlot(x,y):
     ax.clear()
 
@@ -41,39 +47,17 @@ def updatePlot(x,y):
 
     canvas.draw()
 
-def windowFunction():
-    window = tk.Tk()
-    window.title("Collatz Conjecture")
-    window.geometry("1200x675")
+window = tk.Tk()
+window.title("Collatz Conjecture")
+window.geometry("1200x675")
 
-    label = tk.Label(window, text="Enter your number:")
-    label.pack(pady = 10)
+runButton = tk.Button(window, text="Run", command=onRunButtonClick)
+runButton.pack(pady=10)
 
-    entry = tk.Entry(window)
-    entry.pack(pady=10)
+fig, ax = plt.subplots()
 
-    runButton = tk.Button(window, text="Run", command=onRunButtonClick)
-    runButton.pack(pady=10)
+canvas = FigureCanvasTkAgg(fig, master=window)
+canvas_widget = canvas.get_tk_widget()
+canvas_widget.pack()
 
-    fig, ax = plt.subplots()
-
-    canvas = FigureCanvasTkAgg(fig, master=window)
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.pack()
-
-    window.mainloop()
-
-# windowFunction()
-
-for i in range(3,10):
-    collatzConjecture(i)
-
-print(numbers)
-print(sequence)
-
-
-
-
-
-
-        
+window.mainloop()
