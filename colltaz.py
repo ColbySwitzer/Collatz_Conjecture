@@ -5,74 +5,71 @@ import matplotlib.pyplot as plt
 
 currentNum = 3
 running = False
+sequence = []
+numbers = []
 
-
-def onClosing():
-    window.destroy()
-
-def collatzConjecture(a,b):
+def collatzConjecture(a):
     permutations = 0
+    global sequence
+    global numbers
+    numbers.append(a)
     while a != 1:
         if(a%2 == 0):
             a = a/2
-            permutations = permutations + 1
+            permutations += 1
         elif(a%2 != 0):
             a = a*3+1
-            permutations = permutations + 1
-    if(b == "n"):
-        return a
-    if(b == "p"):
-        return permutations
+            permutations += 1
+    sequence.append(permutations)
 
-def runCollatzConjecture():
-    while(True):
-        if(collatzConjecture(currentNum,"n") == 1):
-            print(currentNum)
-            print(collatzConjecture(currentNum,"p"))
-            currentNum = currentNum + 1
+def onRunButtonClick():
+    global running
 
-def onButtonClick():
-    # running = not running
-    x = [1, 2, 3, 4, 5]
-    y = [2, 3, 1, 4, 5]
-    updatePlot(x,y)
+    running = not running
 
+    if running:
+        runCollatzConjecture()
 
 def updatePlot(x,y):
     ax.clear()
 
-    ax.scatter(x,y, label='Scatter Plot',color='blue',marker='o')
+    ax.scatter(x,y, label='Collatz Sequence',color='blue',marker='o')
 
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-    ax.set_title('Scatter Plot Example')
+    ax.set_xlabel('Current Number')
+    ax.set_ylabel('Value')
+    ax.set_title('Collatz Sequence Graph')
 
     canvas.draw()
 
-window = tk.Tk()
-window.title("Collatz Conjecture")
-window.geometry("1200x675")
+def windowFunction():
+    window = tk.Tk()
+    window.title("Collatz Conjecture")
+    window.geometry("1200x675")
 
-label = tk.Label(window, text="Enter your name:")
-label.pack(pady = 10)
+    label = tk.Label(window, text="Enter your number:")
+    label.pack(pady = 10)
 
-entry = tk.Entry(window)
-entry.pack(pady=10)
+    entry = tk.Entry(window)
+    entry.pack(pady=10)
 
-button = tk.Button(window, text="Click me", command=onButtonClick)
-button.pack(pady=10)
+    runButton = tk.Button(window, text="Run", command=onRunButtonClick)
+    runButton.pack(pady=10)
 
-fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
-canvas = FigureCanvasTkAgg(fig, master=window)
-canvas_widget = canvas.get_tk_widget()
-canvas_widget.pack()
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas_widget = canvas.get_tk_widget()
+    canvas_widget.pack()
 
-# window.protocol("VM_DELETE_WINDOW", onClosing)
+    window.mainloop()
 
-window.mainloop()
+# windowFunction()
 
+for i in range(3,10):
+    collatzConjecture(i)
 
+print(numbers)
+print(sequence)
 
 
 
